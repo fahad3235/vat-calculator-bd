@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VAT Calculator BD — Bangladesh VAT Calculator</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1 data-i18n="title">VAT Calculator BD</h1>
+    <p data-i18n="tagline">Bangladesh VAT, done right — offline, in taka and paisa.</p>
+  </div>
+  <button id="langBtn" type="button">বাংলা</button>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <button type="button" class="tab-btn active" data-tab="quick" data-i18n="tabQuick">Quick Calc</button>
+  <button type="button" class="tab-btn" data-tab="invoice" data-i18n="tabInvoice">Invoice</button>
+  <button type="button" class="tab-btn" data-tab="history" data-i18n="tabHistory">History</button>
+  <button type="button" class="tab-btn" data-tab="data" data-i18n="tabData">Data</button>
+</nav>
+
+<main>
+  <!-- QUICK -->
+  <section class="tab-panel" id="panel-quick">
+    <div class="card">
+      <h2 data-i18n="quickHeading">Quick VAT calculation</h2>
+      <label for="qAmount" data-i18n="amountLabel">Amount (৳)</label>
+      <input id="qAmount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="1000">
+      <p class="err" id="qAmountErr"></p>
+
+      <label data-i18n="rateLabel">VAT rate</label>
+      <div class="rate-row" id="ratePresets"></div>
+      <label for="customRate" data-i18n="customRateLabel">Custom rate (%)</label>
+      <input id="customRate" type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="e.g. 12.5">
+      <p class="err" id="customRateErr"></p>
+
+      <label data-i18n="modeLabel">Amount is</label>
+      <div class="radio-row">
+        <label><input type="radio" name="qMode" value="exclusive" checked> <span data-i18n="modeExclusive">Net (VAT not included)</span></label>
+        <label><input type="radio" name="qMode" value="inclusive"> <span data-i18n="modeInclusive">Gross (VAT included)</span></label>
+      </div>
+
+      <button id="qCalc" type="button" class="btn" data-i18n="calcBtn">Calculate</button>
+      <div class="result-box" id="qResult"></div>
+      <button id="qSave" type="button" class="btn secondary" data-i18n="saveBtn" disabled>Save to history</button>
+    </div>
+  </section>
+
+  <!-- INVOICE -->
+  <section class="tab-panel" id="panel-invoice" style="display:none">
+    <div class="card">
+      <h2 data-i18n="invoiceHeading">Invoice builder</h2>
+      <label for="lineDesc" data-i18n="descLabel">Item description</label>
+      <input id="lineDesc" type="text" maxlength="80" placeholder="Notebook">
+      <p class="err" id="lineDescErr"></p>
+      <label for="lineQty" data-i18n="qtyLabel">Qty</label>
+      <input id="lineQty" type="number" inputmode="numeric" min="1" step="1" placeholder="2">
+      <p class="err" id="lineQtyErr"></p>
+      <label for="linePrice" data-i18n="priceLabel">Unit price (৳)</label>
+      <input id="linePrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="500">
+      <p class="err" id="linePriceErr"></p>
+      <label for="lineRate" data-i18n="rateLabel">VAT rate</label>
+      <select id="lineRate"></select>
+      <div class="btn-row">
+        <button id="lineAdd" type="button" class="btn" data-i18n="addLineBtn">Add line</button>
+        <button id="lineClear" type="button" class="btn secondary" data-i18n="clearLinesBtn">Clear lines</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="hint" id="lineEmpty" data-i18n="noLines">No lines yet — add your first item above.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-i18n="colItem">Item</th><th data-i18n="colQty">Qty</th>
+            <th data-i18n="colPrice">Unit price</th><th data-i18n="colRate">Rate</th>
+            <th data-i18n="colNet">Net</th><th data-i18n="colVat">VAT</th>
+            <th data-i18n="colTotal">Total</th><th></th>
+          </tr></thead>
+          <tbody id="lineBody"></tbody>
+        </table>
+      </div>
+      <div class="result-box">
+        <div class="result-row"><span data-i18n="net">Net</span><strong id="invNet">৳0.00</strong></div>
+        <div class="result-row"><span data-i18n="vat">VAT</span><strong id="invVat">৳0.00</strong></div>
+        <div class="result-row total"><span data-i18n="gross">Gross (total)</span><strong id="invGross">৳0.00</strong></div>
+      </div>
+      <button id="invSave" type="button" class="btn secondary" data-i18n="saveInvoiceBtn" disabled>Save invoice total</button>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="tab-panel" id="panel-history" style="display:none">
+    <div class="card">
+      <h2 data-i18n="historyHeading">Saved calculations</h2>
+      <div id="historyList"></div>
+      <button id="histClear" type="button" class="btn secondary" data-i18n="clearHistoryBtn" disabled>Clear history</button>
+    </div>
+  </section>
+
+  <!-- DATA -->
+  <section class="tab-panel" id="panel-data" style="display:none">
+    <div class="card">
+      <h2 data-i18n="dataHeading">Export / import / erase</h2>
+      <div class="btn-row">
+        <button id="exportBtn" type="button" class="btn secondary" data-i18n="exportBtn">Export JSON</button>
+        <label class="btn secondary" style="margin-top:14px; cursor:pointer;"><span data-i18n="importBtn">Import JSON</span>
+          <input id="importFile" type="file" accept=".json,application/json" hidden>
+        </label>
+      </div>
+      <h2 style="margin-top:26px" data-i18n="eraseHeading">Erase everything</h2>
+      <p class="hint" data-i18n="eraseHint">Type DELETE below to erase all saved history and invoice lines.</p>
+      <input id="eraseConfirm" type="text" placeholder="DELETE" autocomplete="off">
+      <button id="eraseBtn" type="button" class="btn danger" data-i18n="eraseBtn">Erase all data</button>
+    </div>
+  </section>
+</main>
+
+<div id="toast" role="status"></div>
+<footer><p data-i18n="disclaimer">Personal calculator. Rates shown are common NBR VAT rates for reference only — always verify the current VAT schedule before filing or charging. Not tax advice.</p></footer>
+
+<script src="js/logic.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
